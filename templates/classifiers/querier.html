@@ -1,0 +1,73 @@
+{% extends "layout.html" %}
+{% block jumbotron %}
+<h2>Classifier Frames: querier</h2>
+<p>
+</p>
+{% endblock %}
+
+{% block content %}
+<div id="clear_success_alert" class="alert alert-success collapse">
+    <button type="button" class="close" data-dismiss="alert">x</button>
+    <strong>Success</strong> All stored data frames have been cleared.
+</div>
+
+<script type=text/javascript>
+function publishList ( data ) {
+  $('#list_of_frames').find('a').remove().end();
+  for( i in data.result )
+  {
+    var class_name='list-group-item';
+    if ( data.result[i].is_tested ) {
+      class_name=class_name+' list-group-item-success';
+    } else {
+      class_name=class_name+' list-group-item-danger';
+    }
+    $('#list_of_frames').append('<a class="'+class_name+'">'+
+    '<div><h5>Index: '+i+'</h5></div>'+
+    '<p>weeks: '+data.result[i].weeks+'</p>'+
+    '<p>trained_on: '+data.result[i].trained_on+'</p>'+
+    '<p>created timestamp:'+data.result[i].created_timestamp+'</p>'+
+    '</a>');
+}
+}
+</script>
+
+<script type=text/javascript>
+$(function() {
+  $.getJSON($SCRIPT_ROOT + '/classifiers/_query_frame_pool', function(data) {
+    publishList(data);
+  });
+});
+</script>
+
+<script type=text/javascript>
+  $(function() {
+    $('#clear_all_frames').bind('click', function() {
+      $.getJSON($SCRIPT_ROOT + '/classifiers/_clear_all_frames', {}, function(data) {
+        $("#clear_success_alert").fadeTo(2000, 500).slideUp(500, function() {
+          $("#clear_success_alert").slideUp(500);
+        });
+      });
+      $.getJSON($SCRIPT_ROOT + '/classifiers/_query_frame_pool', function(data) {
+        publishList(data);
+      });
+      return false;
+    });
+  });
+</script>
+
+<div class="panel panel-default">
+    <div class="panel-heading">Dash Board</div>
+    <div class="panel-body">
+        <button id="clear_all_frames" class="btn btn-primary btn-block" type="button">Clear All Frames</button>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">List of Frames in the Pool</div>
+    <div class="panel-body">
+        <div id="list_of_frames" class="list-group">
+        </div>
+    </div>
+</div>
+{% endblock %}

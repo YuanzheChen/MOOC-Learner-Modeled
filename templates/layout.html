@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="MOOC-Learner-Modeled">
+    <meta name="author" content="John Ding">
+    <link rel="icon" href="{{ url_for('static',filename='favicon.ico') }}">
+
+    <title>{% block title %}MOOC-Learner-Modeled{% endblock %}</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="{{ url_for('static',filename='css/bootstrap.min.css') }}" rel="stylesheet">
+    <!-- Bootstrap theme -->
+    <link href="{{ url_for('static',filename='css/bootstrap-theme.min.css') }}" rel="stylesheet">
+    <!-- Bootstrap Select CSS -->
+    <link href="{{ url_for('static',filename='css/bootstrap-select.min.css') }}" rel="stylesheet">
+    <!-- Determine the script root of current server -->
+    <script type=text/javascript>
+      $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+    </script>
+    <!-- JQuery core JavaScripts -->
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="{{
+      url_for('static', filename='jquery.js') }}">\x3C/script>')</script>
+    <!-- Bootstrap core JavaScripts -->
+    <script src="{{ url_for('static',filename='js/bootstrap.min.js') }}"></script>
+    <!-- Bootstrap Select core Javascripts -->
+    <script src="{{ url_for('static',filename='js/bootstrap-select.min.js') }}"></script>
+
+    {% block import %}
+    {% endblock %}
+
+</head>
+
+<body>
+
+{% block navbar %}
+<nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">MOOC-Learner-Modeled</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li><a href="/">Main Page</a></li>
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Classifiers<span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="/classifiers/querier">Querier</a></li>
+                        <li role="separator" class="divider"></li>
+                        <li class="dropdown-header">Manipulation</li>
+                        <li><a href="/classifiers/transferring_by_week">Direct Transferring by Week</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Frames<span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="/frames/querier">Querier</a></li>
+                        <li role="separator" class="divider"></li>
+                        <li class="dropdown-header">Manipulation</li>
+                        <li><a href="/frames/fetching">Fetching</a></li>
+                        <li><a href="/frames/splitting">Splitting</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Training<span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="/training/">Training</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Testing<span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="/testing/">Testing</a></li>
+                        <li><a href="/testing/analyzing">Analyzing</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div><!--/.nav-collapse -->
+    </div>
+</nav>
+{% endblock %}
+
+<div class="container" role="main">
+
+    <div class="jumbotron">
+        {% block jumbotron %}
+        {% endblock %}
+    </div>
+
+    {% block content %}
+    {% endblock %}
+
+
+</div> <!-- /container -->
+
+</body>
+</html>

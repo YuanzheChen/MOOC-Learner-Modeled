@@ -1,0 +1,6 @@
+.coverage
+.coveragerc
+.idea/
+config/config.yml
+*.pyc
+.DS_STORE

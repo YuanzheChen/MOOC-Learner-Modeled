@@ -1,0 +1,187 @@
+{% extends "layout.html" %}
+{% block jumbotron %}
+<h2>Training: training</h2>
+<p>
+</p>
+{% endblock %}
+
+
+{% block content %}
+<div id="train_success_alert" class="alert alert-success collapse">
+    <button type="button" class="close" data-dismiss="alert">x</button>
+    <strong>Success</strong> All stored data frames have been cleared.
+</div>
+<div id="train_failed_alert" class="alert alert-danger collapse">
+    <button type="button" class="close" data-dismiss="alert">x</button>
+    <strong>Failed</strong> Training field since critical information is missing.
+</div>
+
+<script type=text/javascript>
+$(function() {
+  $.getJSON($SCRIPT_ROOT + '/training/_get_setting', function(data) {
+    for ( i in data.result ) {
+        $("label[for='select_setting_"+data.result[i].name+"']").text(data.result[i].desc);
+        $('#select_setting_'+data.result[i].name).find('option').remove().end();
+        for( j in data.result[i].item )
+        {
+          $('#select_setting_'+data.result[i].name).append('<option>'+data.result[i].item[j]+'</option>');
+        }
+        $('#select_setting_'+data.result[i].name).selectpicker('val', data.result[i].default);
+        $('#select_setting_'+data.result[i].name).selectpicker('render');
+        $('#select_setting_'+data.result[i].name).selectpicker('refresh');
+    }
+  });
+  $.getJSON($SCRIPT_ROOT + '/training/_get_config', function(data) {
+    for ( i in data.result ) {
+      if (data.result[i].type=='select') {
+        $("label[for='select_config_"+data.result[i].name+"']").text(data.result[i].desc);
+        $('#select_config_'+data.result[i].name).find('option').remove().end();
+        for( j in data.result[i].item )
+        {
+          $('#select_config_'+data.result[i].name).append('<option>'+data.result[i].item[j]+'</option>');
+        }
+        $('#select_config_'+data.result[i].name).selectpicker('val', data.result[i].default);
+        $('#select_config_'+data.result[i].name).selectpicker('render');
+        $('#select_config_'+data.result[i].name).selectpicker('refresh');
+      }
+      if (data.result[i].type=='input') {
+        $("label[for='input_config_"+data.result[i].name+"']").text(data.result[i].desc);
+        $('#input_config_'+data.result[i].name).val(data.result[i].default);
+      }
+      if (data.result[i].type=='checkbox') {
+        $("label[for='checkbox_config_"+data.result[i].name+"']").text(data.result[i].desc);
+        $('#checkbox_config_'+data.result[i].name).prop('checked', data.result[i].default);
+      }
+    }
+  });
+  var data_frames;
+  var setting;
+  var ready_data_frames = $.getJSON($SCRIPT_ROOT + '/training/_get_data_frames', function(data) {
+    data_frames = data
+  });
+  var ready_setting = $.getJSON($SCRIPT_ROOT + '/training/_get_setting', function(data) {
+    setting = data
+  });
+  $.when(ready_data_frames, ready_setting).then(function() {
+    $('#select_setting_'+setting.result[0].name).find('option').remove().end();
+    for( j in data_frames.result )
+    {
+      console.log(data_frames.result[j]);
+      $('#select_setting_'+setting.result[0].name).append(
+        '<option value="'+data_frames.result[j]._id+'">'+
+        data_frames.result[j].features.join(", ")+'</option>'
+      );
+    }
+    $('#select_setting_'+setting.result[0].name).selectpicker('val', setting.result[0].default);
+    $('#select_setting_'+setting.result[0].name).selectpicker('render');
+    $('#select_setting_'+setting.result[0].name).selectpicker('refresh');
+  });
+});
+</script>
+
+<script type=text/javascript>
+  $(function() {
+    $('#train').bind('click', function() {
+      var setting_input = {};
+      $('#setting').find(':input').filter('select').each(function(){
+        var select_value = null;
+        if ($(this).val() != null) {
+          select_value = $(this).val().join(",");
+        }
+        setting_input[this.id+'_value'] = select_value;
+      });
+      $.getJSON($SCRIPT_ROOT + '/training/_set_setting', setting_input, function() {
+      });
+      var config_input = {};
+      $('#config').find(':input').filter('[id^=select]').each(function(){
+        config_input[this.id+'_value'] = $(this).val();
+      });
+      $('#config').find(':input').filter('[id^=input]').each(function(){
+        config_input[this.id+'_value'] = $(this).val();
+      });
+      $('#config').find(':input').filter('[id^=checkbox]').each(function(){
+        config_input[this.id+'_value'] = $(this).is(':checked');
+      });
+      $.getJSON($SCRIPT_ROOT + '/training/_set_config', config_input , function() {
+      });
+      $.getJSON($SCRIPT_ROOT + '/training/_request_training', function(data) {
+        if ( data.result ) {
+          $("#train_success_alert").fadeTo(2000, 500).slideUp(500, function() {
+          $("#train_success_alert").slideUp(500);
+          });
+        } else {
+          $("#train_failed_alert").fadeTo(2000, 500).slideUp(500, function() {
+          $("#train_failed_alert").slideUp(500);
+          });
+        }
+      });
+      return false;
+    });
+  });
+</script>
+
+<div class="panel panel-default">
+    <div class="panel-heading">Setting</div>
+    <div class="panel-body">
+        <form id="setting">
+            {% for element in setting %}
+            {{ loop.cycle('<div class="row row-eq-height">', '') | safe }}
+                <div class="col-md-6">
+                    <div class="forum-group">
+                        <label for="select_setting_{{ element['name'] }}"></label>
+                        <select id="select_setting_{{ element['name'] }}" class="selectpicker" data-live-search="true" data-actions-box="true" multiple data-width="100%">
+                        </select>
+                    </div>
+                </div>
+            {{ loop.cycle('', '</div><p></p>') | safe }}
+            {% endfor %}
+            {% if setting | length % 2 == 1 %}</div>{% endif %}
+        </form>
+    </div>
+</div>
+
+
+<div class="panel panel-default">
+    <div class="panel-heading">Config</div>
+    <div class="panel-body">
+        <form id="config">
+            {% for element in config %}
+            {{ loop.cycle('<div class="row row-eq-height">', '') | safe }}
+            {% if element['type'] == 'select' %}
+                <div class="col-md-6">
+                    <div class="forum-group">
+                        <label for="select_config_{{ element['name'] }}"></label>
+                        <select id="select_config_{{ element['name'] }}" class="selectpicker" data-live-search="true" data-size="5" data-width="100%">
+                        </select>
+                    </div>
+                </div>
+            {% elif element['type'] == 'input' %}
+                <div class="col-md-6">
+                    <div class="forum-group">
+                        <label for="input_config_{{ element['name'] }}"></label>
+                        <input id="input_config_{{ element['name'] }}" type="text" class="form-control" aria-describedby="basic-addon3">
+                    </div>
+                </div>
+            {% elif element['type'] == 'checkbox' %}
+                <div class="col-md-6">
+                    <div class="form-check">
+                      <label for="checkbox_config_{{ element['name'] }}"></label>
+                        <p><input id="checkbox_config_{{ element['name'] }}" class="form-check-input" type="checkbox" value=""></p>
+                    </div>
+                </div>
+            {% endif %}
+            {{ loop.cycle('', '</div><p></p>') | safe }}
+            {% endfor %}
+            {% if config | length % 2 == 1 %}</div>{% endif %}
+        </form>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">Train</div>
+    <div class="panel-body">
+        <button id="train" class="btn btn-primary btn-lg btn-block" type="button">Train</button>
+    </div>
+</div>
+
+{% endblock %}

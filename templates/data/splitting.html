@@ -1,0 +1,78 @@
+{% extends "layout.html" %}
+{% block jumbotron %}
+<h2>Data Frames: splitting</h2>
+<p>
+</p>
+{% endblock %}
+
+{% block content %}
+<div id="split_success_alert" class="alert alert-success collapse">
+    <button type="button" class="close" data-dismiss="alert">x</button>
+    <strong>Success</strong> Splitting data frame successfully.
+</div>
+
+<script type=text/javascript>
+$(function() {
+  $.getJSON($SCRIPT_ROOT + '/frames/_query_frame_pool', function(data) {
+    $('#select_frame').find('option').remove().end();
+    for( i in data.result )
+    {
+      $('#select_frame').append('<option value="'+data.result[i]._id+'">'+data.result[i].features.join(", ")+'</option>');
+    }
+    $('#select_frame').selectpicker('render');
+    $('#select_frame').selectpicker('refresh');
+  });
+  $("#input_config_splitting").val("0.75");
+});
+</script>
+
+<div class="panel panel-default">
+    <div class="panel-heading">Select Frame</div>
+    <div class="panel-body">
+        <div class="forum-group">
+            <label for="select_frame">Frame to render</label>
+            <select id="select_frame" class="selectpicker" data-live-search="true"  multiple data-max-options="1" data-width="100%">
+            </select>
+        </div>
+    </div>
+</div>
+
+
+<script type=text/javascript>
+$(function() {
+  $('#split').bind('click', function() {
+    var selected_frame_id = $('#select_frame').val();
+    if (selected_frame_id != null){
+      selected_frame_id = selected_frame_id[0]
+    }
+    $.getJSON($SCRIPT_ROOT + '/frames/_request_splitting', {
+      'selected_frame_id': selected_frame_id,
+      'frac': $('#input_config_splitting').val()
+    }, function() {
+      $("#split_success_alert").fadeTo(2000, 500).slideUp(500, function() {
+        $("#split_success_alert").slideUp(500);
+      });
+    });
+  });
+});
+</script>
+
+<div class="panel panel-default">
+    <div class="panel-heading">Config</div>
+    <div class="panel-body">
+        <div class="forum-group">
+            <label for="input_config_splitting">Fraction for Training</label>
+            <input id="input_config_splitting" type="text" class="form-control" aria-describedby="basic-addon3">
+        </div>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">Split</div>
+    <div class="panel-body">
+        <div>
+            <button id="split" class="btn btn-primary btn-lg btn-block" type="button">Split</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
